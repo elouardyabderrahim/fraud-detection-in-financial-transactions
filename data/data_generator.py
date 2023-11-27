@@ -1,3 +1,4 @@
+import json
 import random
 from datetime import datetime, timedelta
 
@@ -65,9 +66,22 @@ def generate_data(num_transactions, num_customers):
 
     return transactions, customers, external_data
 
-transactions, customers, external_data = generate_data(1000, 100)
+transactions, customers, external_data = generate_data(500000, 10000)
 print("T",transactions)
 print("c",customers)
 print("E",external_data)
 
+# Save  to JSON files
+with open('transactions.json', 'w') as transactions_file:
+    json.dump(transactions, transactions_file, indent=2)
+
+
+with open('customers.json', 'w') as customers_file:
+    json.dump(customers, customers_file, indent=2)
+
+
+with open('external_data.json', 'w') as external_data_file:
+    json.dump(external_data, external_data_file, indent=2)
+
+print("Data saved to transactions.json, customers.json, and external_data.json")
 

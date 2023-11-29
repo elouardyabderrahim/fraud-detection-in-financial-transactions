@@ -26,6 +26,9 @@
 
 ## Data Collection and Integration
 - Utilize the developed APIs to collect transaction, customer, and external data.
+
+   starting by : `pip install pyhive`
+
 - Ensure collected data is clean, relevant, and in a format suitable for analysis.
 
 ## Data Storage and Management with Hive

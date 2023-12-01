@@ -53,9 +53,17 @@ def get_data_from_api(url):
         return None
 
 
+def create_blacklist_table():
+    try:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS frauddb.blacklist (
+                marchant STRING
+            )
+        """)
+        print("Table 'blacklist ' created successfully!")
+    except Exception as e:
+        print(f'Error creating table blacklist : {e}')
 
-
-# create table for transactions
 def create_transactions_table():
     try:
         cursor.execute("""
@@ -89,6 +97,17 @@ def create_customers_table():
         print(f'Error creating table: {e}')
 
 
+def insert_blacklist_data(data):
+    try:
+        for  merchant in data["blacklist_info"]:
+
+            cursor.execute(f"""
+            INSERT INTO frauddb.blacklist
+            VALUES ('{merchant}')
+        """)
+        print("Blacklist data inserted successfully!")
+    except Exception as e:
+        print(f'Error inserting blacklist data: {e}')
 
 def insert_transactions_data(data):
     try:       
@@ -127,12 +146,14 @@ if test_hive_connection():
     cursor.execute("USE frauddb")
     create_transactions_table()
     create_customers_table()
+    create_blacklist_table()
     transactions_data = get_data_from_api(transactions_url)
     customer_data=get_data_from_api(customer_url)
     external_data_data=get_data_from_api(external_data_url)
 
 
-
+    insert_blacklist_data(external_data_data)
+    
     for data_cust in customer_data:
         insert_customer_data(data_cust)
 

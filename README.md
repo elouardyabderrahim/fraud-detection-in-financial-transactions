@@ -26,6 +26,15 @@
 
 ## Data Collection and Integration
 - Utilize the developed APIs to collect transaction, customer, and external data.
+    
+   before doing any changes on data lets test the connection with hive :
+
+   starting by : `pip install pyhive`
+
+    in case of getting the error of thrift you need to : `pip install thrift`
+
+   ![Alt text](image.png)
+
 - Ensure collected data is clean, relevant, and in a format suitable for analysis.
 
 ## Data Storage and Management with Hive

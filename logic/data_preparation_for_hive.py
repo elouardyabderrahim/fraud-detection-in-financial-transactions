@@ -32,6 +32,7 @@ def create_db(db_name):
 
 
 def get_data_from_api(url):
+
     try:
         response = requests.get(url)
         response.raise_for_status()  
@@ -52,6 +53,18 @@ def get_data_from_api(url):
         print(f"Error fetching data from API: {e}")
         return None
 
+def create_credit_fraud_table():
+    try:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS frauddb.credit_fraud (
+                       customer_id STRING ,
+                        credit_score INTEGER,
+                        fraud_report INTEGER
+            )
+        """)
+        print("Table 'credit_fraud ' created successfully!")
+    except Exception as e:
+        print(f'Error creating table credit_fraud : {e}')
 
 def create_blacklist_table():
     try:
@@ -81,6 +94,17 @@ def create_transactions_table():
         print("Table 'transaction' created successfully!")
     except Exception as e:
         print(f'Error creating table: {e}')
+
+
+def insert_credit_fraud_data(customer_id,credit_score,fraud_report):
+    try:
+        cursor.execute(f"""
+            INSERT INTO frauddb.credit_fraud
+            VALUES ('{customer_id}', '{credit_score}', '{fraud_report}')
+        """)
+        print("Credit and fraud data inserted successfully!")
+    except Exception as e:
+        print(f'Error inserting credit and fraud data: {e}')
 
 def create_customers_table():
     try:
@@ -147,19 +171,40 @@ if test_hive_connection():
     create_transactions_table()
     create_customers_table()
     create_blacklist_table()
+    create_credit_fraud_table()
     transactions_data = get_data_from_api(transactions_url)
     customer_data=get_data_from_api(customer_url)
     external_data_data=get_data_from_api(external_data_url)
 
 
+
+
+
+
     insert_blacklist_data(external_data_data)
-    
+
     for data_cust in customer_data:
         insert_customer_data(data_cust)
 
     
     for data in transactions_data:
         insert_transactions_data(data)
+
+    fraud_reports = external_data_data["fraud_reports"]
+
+    credit_scores = external_data_data["credit_scores"]
+
+# Find common keys
+    common_keys = set(fraud_reports.keys()) & set(credit_scores.keys())
+
+# Extract values for common keys
+    common_values_fraud_reports = [fraud_reports[key] for key in common_keys]
+    common_values_credit_scores = [credit_scores[key] for key in common_keys]
+
+# Print the common keys and their corresponding values
+    for key, value_fraud, value_credit in zip(common_keys, common_values_fraud_reports, common_values_credit_scores):
+        print(f"Customer ID: {key}, Fraud Reports: {value_fraud}, Credit Score: {value_credit}")
+        insert_credit_fraud_data(key,value_fraud,value_fraud)
 
 else:
     print("Connection to Hive failed. Unable to perform actions.")

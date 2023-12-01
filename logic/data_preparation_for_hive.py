@@ -74,6 +74,22 @@ def create_transactions_table():
     except Exception as e:
         print(f'Error creating table: {e}')
 
+def create_customers_table():
+    try:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS frauddb.customers (
+                customer_id STRING,
+                age INTEGER,
+                location STRING,
+                avg_transaction_value DOUBLE
+            )
+        """)
+        print("Table 'customers' created successfully!")
+    except Exception as e:
+        print(f'Error creating table: {e}')
+
+
+
 def insert_transactions_data(data):
     try:       
         # print("entry",modified_entry)
@@ -87,13 +103,39 @@ def insert_transactions_data(data):
     except Exception as e:
         print(f'Error inserting transactions data: {e}')
 
+def insert_customer_data(data):
+    try:       
+        # print("entry",modified_entry)
+         print(data)
+         customer_id = data["customer_id"]
+         age = data["demographics"]["age"]
+         location = data["demographics"]["location"]
+         avg_transaction_value = data["behavioral_patterns"]["avg_transaction_value"]
+
+         cursor.execute(f"""
+               INSERT INTO frauddb.customers
+               VALUES ('{ customer_id}', '{age}','{location}', '{avg_transaction_value}')
+            """)
+         
+         print("customer data inserted successfully!")
+    except Exception as e:
+        print(f'Error inserting transactions data: {e}')
+
 if test_hive_connection():
     print("Performing actions on Hive...")
     create_db("frauddb")
     cursor.execute("USE frauddb")
     create_transactions_table()
-
+    create_customers_table()
     transactions_data = get_data_from_api(transactions_url)
+    customer_data=get_data_from_api(customer_url)
+    external_data_data=get_data_from_api(external_data_url)
+
+
+
+    for data_cust in customer_data:
+        insert_customer_data(data_cust)
+
     
     for data in transactions_data:
         insert_transactions_data(data)
